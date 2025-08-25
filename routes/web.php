@@ -30,7 +30,7 @@ Route::middleware('auth', 'verified')->group(function () {
 Route::middleware(['auth','verified','can:admin'])
     ->prefix('admin')->name('admin.')
     ->group(function () {
-        Route::resource('temas', AdminTemaController::class)->only(['index']);      // por ahora solo index
+        Route::resource('temas', AdminTemaController::class);      // por ahora solo index
         Route::resource('lecciones', AdminLeccionController::class)->only(['index']);
         Route::resource('ejercicios', AdminEjercicioController::class)->only(['index']);
     });

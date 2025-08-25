@@ -12,9 +12,19 @@ class TemaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return response('Admin: Temas index. TODO: vista Blade.', 200);
+        $verBorrados = $request->boolean('ver_borrados');
+
+        $query = Tema::query();
+        if (!$verBorrados) {
+            $query->where('estado', '!=', 'borrado');
+        }
+
+        // (Opcional) orden + paginación
+        $temas = $query->orderByDesc('id')->paginate(10)->withQueryString();
+
+        return view('admin.temas.index', compact('temas', 'verBorrados'));
     }
 
     /**
@@ -22,7 +32,7 @@ class TemaController extends Controller
      */
     public function create()
     {
-        //
+        return view('admin.temas.create');
     }
 
     /**
@@ -30,7 +40,15 @@ class TemaController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'titulo' => 'required|string|max:255',
+            'descripcion' => 'nullable|string',
+        ]);
+
+        Tema::create($request->all());
+
+        return redirect()->route('admin.temas.index')
+            ->with('success', 'Tema creado correctamente.');
     }
 
     /**
@@ -46,7 +64,7 @@ class TemaController extends Controller
      */
     public function edit(Tema $tema)
     {
-        //
+        return view('admin.temas.edit', compact('tema'));
     }
 
     /**
@@ -54,7 +72,16 @@ class TemaController extends Controller
      */
     public function update(Request $request, Tema $tema)
     {
-        //
+        $request->validate([
+            'titulo' => 'required|string|max:255',
+            'descripcion' => 'nullable|string',
+            'estado' => 'required|in:activo,desactivado,borrado',
+        ]);
+
+        $tema->update($request->all());
+
+        return redirect()->route('admin.temas.index')
+            ->with('success', 'Tema actualizado correctamente.');
     }
 
     /**
@@ -62,6 +89,10 @@ class TemaController extends Controller
      */
     public function destroy(Tema $tema)
     {
-        //
+        // En vez de eliminar de la base, marcamos como "borrado"
+        $tema->update(['estado' => 'borrado']);
+
+        return redirect()->route('admin.temas.index')
+            ->with('success', 'Tema marcado como borrado.');
     }
 }
