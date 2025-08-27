@@ -8,17 +8,13 @@ use App\Http\Controllers\Admin\TemaController as AdminTemaController;
 use App\Http\Controllers\Admin\LeccionController as AdminLeccionController;
 use App\Http\Controllers\Admin\EjercicioController as AdminEjercicioController;
 
+Route::get('/', fn () => view('welcome'));
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', fn () => view('dashboard'))
+    ->middleware(['auth', 'verified'])->name('dashboard');
 
 // User
-Route::middleware('auth', 'verified')->group(function () {
+Route::middleware(['auth','verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -30,8 +26,13 @@ Route::middleware('auth', 'verified')->group(function () {
 Route::middleware(['auth','verified','can:admin'])
     ->prefix('admin')->name('admin.')
     ->group(function () {
-        Route::resource('temas', AdminTemaController::class);      // por ahora solo index
-        Route::resource('lecciones', AdminLeccionController::class)->only(['index']);
+        Route::resource('temas', AdminTemaController::class);
+        Route::resource('lecciones', AdminLeccionController::class)
+        ->parameters(['lecciones' => 'leccion'])
+        ->except(['show']);
+        Route::patch('lecciones/{leccion}/restore', [AdminLeccionController::class, 'restore'])
+            ->name('lecciones.restore');
+
         Route::resource('ejercicios', AdminEjercicioController::class)->only(['index']);
     });
 

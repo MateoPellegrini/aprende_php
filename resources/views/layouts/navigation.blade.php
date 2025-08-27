@@ -21,6 +21,9 @@
                         <x-nav-link :href="route('admin.temas.index')" :active="request()->routeIs('admin.temas.*')">
                             {{ __('Temas') }}
                         </x-nav-link>
+                        <x-nav-link :href="route('admin.lecciones.index')" :active="request()->routeIs('admin.lecciones.*')">
+                            {{ __('Lecciones') }}
+                        </x-nav-link>
                         {{-- Más secciones admin después: Lecciones, Ejercicios, Usuarios, etc. --}}
                     @endcan
                 </div>
